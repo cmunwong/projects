@@ -8,8 +8,8 @@ SalesYard = Array("Woodinville", "Kenmore", "Bellevue", "Redmond", "Smith Island
             "Woodinville Saturday", "Kenmore Saturday", "Bellevue Saturday", "Redmond Saturday", "Smith Island Saturday", "Tacoma Saturday", "Webster Saturday")
 
 Dim FolderPath, SaveFolder As String
-FolderPath = "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\"
-SaveFolder = "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\Daily Worksheets\"
+FolderPath = "C:\Users\stella.wong\Product Inventory\"
+SaveFolder = "C:\Users\stella.wong\Product Inventory\Daily Worksheets\"
 
 Dim SaveName As String
 SaveName = SaveFolder & Format(Now() - 1, "mm-dd-yyyy") & ".xlsx"
@@ -157,7 +157,7 @@ Public Sub accessMacro()
 Dim appAccess
 Set appAccess = CreateObject("Access.Application")
 
-appAccess.OpenCurrentDatabase "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\CGV_DailyProduct.accdb"
+appAccess.OpenCurrentDatabase "C:\Users\stella.wong\Product Inventory\CGV_DailyProduct.accdb"
 appAccess.Visible = True
    
 appAccess.DoCmd.SetWarnings False
