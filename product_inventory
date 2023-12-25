@@ -1,0 +1,173 @@
+Sub DailyProduct()
+
+Set d = ThisWorkbook.Sheets("DailyInventory")
+Set e = ThisWorkbook.Sheets("DailyAdded")
+
+Dim SalesYard() As Variant
+SalesYard = Array("Woodinville", "Kenmore", "Bellevue", "Redmond", "Smith Island", "Tacoma", "Webster", _
+            "Woodinville Saturday", "Kenmore Saturday", "Bellevue Saturday", "Redmond Saturday", "Smith Island Saturday", "Tacoma Saturday", "Webster Saturday")
+
+Dim FolderPath, SaveFolder As String
+FolderPath = "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\"
+SaveFolder = "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\Daily Worksheets\"
+
+Dim SaveName As String
+SaveName = SaveFolder & Format(Now() - 1, "mm-dd-yyyy") & ".xlsx"
+
+Dim FileName, FilePath As String
+Dim i, j, k, s As Integer
+
+'''Product Inventory
+i = 2
+d.Range("A2:E" & d.Cells(Rows.Count, 1).End(xlUp).Row).Clear
+
+For s = LBound(SalesYard) To UBound(SalesYard)
+    FileName = SalesYard(s) & ".xlsx"
+    FilePath = FolderPath & FileName
+    
+    If Dir(FilePath) <> "" Then
+        Workbooks.Open FilePath
+        Set ws = Workbooks(FileName).Sheets("Face Sheet")
+            
+        For j = 5 To ws.Cells(Rows.Count, 1).End(xlUp).Row
+            d.Range("A" & i).Value = Split(SalesYard(s), " Saturday")(0)
+            d.Range("B" & i).Value = ws.Range("F1").Value
+            
+            '''If SalesYard(s) = "Kenmore" Or SalesYard(s) = "Kenmore Saturday" Then
+            If WorksheetFunction.Trim(CStr(ws.Range("H4").Value)) = "Product Inventory:" And WorksheetFunction.Trim(CStr(ws.Range("N4").Value)) = "CURRENT" And WorksheetFunction.Trim(CStr(ws.Range("O4").Value)) = "MAX" Then
+                d.Range("C" & i).Value = ws.Range("H" & j).Value
+                d.Range("D" & i).Value = ws.Range("O" & j).Value
+                d.Range("E" & i).Value = ws.Range("N" & j).Value
+                If WorksheetFunction.Trim(CStr(ws.Range("H" & j + 1).Value)) = "Products Added:" Then Exit For
+            
+            '''ElseIf SalesYard(s) = "Webster" Or SalesYard(s) = "Webster Saturday" Then
+            ElseIf WorksheetFunction.Trim(CStr(ws.Range("G4").Value)) = "Product Inventory:" And WorksheetFunction.Trim(CStr(ws.Range("N4").Value)) = "MAX" And WorksheetFunction.Trim(CStr(ws.Range("M4").Value)) = "CURRENT" Then
+                d.Range("C" & i).Value = ws.Range("G" & j).Value
+                d.Range("D" & i).Value = ws.Range("N" & j).Value
+                d.Range("E" & i).Value = ws.Range("M" & j).Value
+                If WorksheetFunction.Trim(CStr(ws.Range("G" & j + 1).Value)) = "Products Added:" Then Exit For
+                
+            '''Else
+            ElseIf WorksheetFunction.Trim(CStr(ws.Range("H4").Value)) = "Product Inventory:" And WorksheetFunction.Trim(CStr(ws.Range("N4").Value)) = "MAX" And WorksheetFunction.Trim(CStr(ws.Range("O4").Value)) = "CURRENT" Then
+                d.Range("C" & i).Value = ws.Range("H" & j).Value
+                d.Range("D" & i).Value = ws.Range("N" & j).Value
+                d.Range("E" & i).Value = ws.Range("O" & j).Value
+                If WorksheetFunction.Trim(CStr(ws.Range("H" & j + 1).Value)) = "Products Added:" Then Exit For         
+            End If
+                
+            i = i + 1
+                
+        Next j
+        Workbooks(FileName).Close
+
+    End If   
+Next s
+
+For k = 2 To d.Cells(Rows.Count, 1).End(xlUp).Row
+    d.Range("B" & k).Value = Replace(d.Range("B" & k).Value, ".", "/")
+    If Application.WorksheetFunction.IsNumber(d.Range("D" & k).Value) = False Then d.Range("D" & k).Value = ""
+    If Application.WorksheetFunction.IsNumber(d.Range("E" & k).Value) = False Then d.Range("E" & k).Value = "" 
+Next k
+
+On Error Resume Next
+    d.Range("C:C").SpecialCells(xlCellTypeBlanks).EntireRow.Delete
+   
+d.Range("A1").Select
+d.Columns("B:B").HorizontalAlignment = xlLeft
+d.Columns("B:B").NumberFormat = "mm/dd/yyyy"
+d.Columns("D:E").NumberFormat = "#,##0.00_);(#,##0.00)"
+
+'''Product Added
+i = 2
+
+e.Range("A2:D" & e.Cells(Rows.Count, 1).End(xlUp).Row).Clear
+
+For s = LBound(SalesYard) To UBound(SalesYard)
+    FileName = SalesYard(s) & ".xlsx"
+    FilePath = FolderPath & FileName
+    
+    If Dir(FilePath) <> "" Then
+        Workbooks.Open FilePath
+        Set ws = Workbooks(FileName).Sheets("Face Sheet")
+            
+        For j = 5 To ws.Cells(Rows.Count, 1).End(xlUp).Row
+            
+            '''If (SalesYard(s) = "Webster" Or SalesYard(s) = "Webster Saturday") And ws.Range("G" & j).Value = "Products Added:" Then
+            If WorksheetFunction.Trim(CStr(ws.Range("G4").Value)) = "Product Inventory:" And WorksheetFunction.Trim(CStr(ws.Range("G" & j).Value)) = "Products Added:" Then
+                Do While j + 1 <= ws.Cells(Rows.Count, 1).End(xlUp).Row
+                    e.Range("A" & i).Value = Split(SalesYard(s), " Saturday")(0)
+                    e.Range("B" & i).Value = ws.Range("F1").Value
+                    e.Range("C" & i).Value = ws.Range("G" & j + 1).Value
+                    e.Range("D" & i).Value = ws.Range("M" & j + 1).Value                       
+                    i = i + 1
+                    j = j + 1
+                    If WorksheetFunction.Trim(CStr(ws.Range("G" & j + 1).Value)) = "Total Product Added:" Then Exit For
+                Loop
+                        
+            ElseIf WorksheetFunction.Trim(CStr(ws.Range("H4").Value)) = "Product Inventory:" And WorksheetFunction.Trim(CStr(ws.Range("H" & j).Value)) = "Products Added:" Then
+                Do While j + 1 <= ws.Cells(Rows.Count, 1).End(xlUp).Row
+                    e.Range("A" & i).Value = Split(SalesYard(s), " Saturday")(0)
+                    e.Range("B" & i).Value = ws.Range("F1").Value
+                    e.Range("C" & i).Value = ws.Range("H" & j + 1).Value
+                    e.Range("D" & i).Value = ws.Range("N" & j + 1).Value   
+                    i = i + 1
+                    j = j + 1
+                    If WorksheetFunction.Trim(CStr(ws.Range("H" & j + 1).Value)) = "Total Product Added:" Then Exit For
+                Loop 
+            End If
+        Next j
+        
+        Workbooks(FileName).Close
+        Kill FilePath
+
+    End If    
+Next s
+
+For k = 2 To e.Cells(Rows.Count, 1).End(xlUp).Row
+    e.Range("B" & k).Value = Replace(e.Range("B" & k).Value, ".", "/")
+    If Application.WorksheetFunction.IsNumber(d.Range("D" & k).Value) = False Then e.Range("D" & k).Value = ""  
+Next k
+
+On Error Resume Next
+    e.Range("C:C").SpecialCells(xlCellTypeBlanks).EntireRow.Delete
+    
+e.Range("A1").Select
+e.Columns("B:B").HorizontalAlignment = xlLeft
+e.Columns("B:B").NumberFormat = "mm/dd/yyyy"
+e.Columns("D:D").NumberFormat = "#,##0.00_);(#,##0.00)"
+
+'''Append to Access
+ThisWorkbook.SaveCopyAs FolderPath & "CGV_DailyProduct_Copy.xlsx"
+Call accessMacro
+Kill FolderPath & "CGV_DailyProduct_Copy.xlsx"
+
+ThisWorkbook.Save
+
+'''Daily Worksheets
+Application.DisplayAlerts = False
+ThisWorkbook.SaveCopyAs SaveName
+ThisWorkbook.SaveAs FileName:=SaveName, FileFormat:=51
+
+ThisWorkbook.Close
+Application.Quit
+
+End Sub
+
+Public Sub accessMacro()
+Dim appAccess
+Set appAccess = CreateObject("Access.Application")
+
+appAccess.OpenCurrentDatabase "C:\Users\kenneth.jose\OneDrive - Cedar Grove Composting\Stella-Transfer\Product Inventory\CGV_DailyProduct.accdb"
+appAccess.Visible = True
+   
+appAccess.DoCmd.SetWarnings False
+appAccess.DoCmd.RunSavedImportExport "Import-SalesYardsAdded"
+appAccess.DoCmd.RunSavedImportExport "Import-SalesYardsInventory"
+appAccess.DoCmd.RunSavedImportExport "Export-DailySalesYardsProduct"
+
+'''appAccess.DoCmd.SetWarnings True
+'''appAccess.CloseCurrentDatabase
+
+appAccess.DoCmd.Quit
+
+End Sub
