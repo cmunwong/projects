@@ -1,0 +1,204 @@
+# Export SFTP transfer log from Secure Transport
+# Stella Wong 11-07-2023
+
+Clear;
+Add-Type -AssemblyName microsoft.VisualBasic;
+Add-Type -AssemblyName System.Windows.Forms;
+
+#Secure Transport url
+$url = "https://ft-int.regence.com/coreadmin/auth/login.jspx"
+
+#Sign in Secure Transport
+$userID = Read-host -Prompt "Enter R# User ID (e.g. r000000)"
+$password = Read-host -Prompt "Enter Secure Transport password"
+Write-Host ""
+
+#Transfer Log folder
+$downloads = "C:\Users\" + $userID + "\Downloads"
+$transLogs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\transferLog"
+
+#Local filename
+$filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "Member_MA_Premium_", "MAO004_", "MMR_", "MOR_", "RAPS_RETURN_")
+
+#Specific Date Time Range
+#Initalize to 30 days back from yesterday
+$fromDate = (Get-date).AddDays(-30).ToString("MM/dd/yyyy")
+$toDate = (Get-date).AddDays(-1).ToString("MM/dd/yyyy")
+
+foreach ($filename in [string[]]$filenames) {
+
+    #Current filename
+    Write-Host "Filename: $filename"
+
+    #Update date range
+    try {
+        #The latest transferLog file
+        $lastLogFile = gci $transLogs\transferLog_$filename*.csv | sort LastWriteTime | select -last 1
+        $lastLogName = $lastLogFile.Name
+
+        if ($lastLogName.Length -eq 0) {
+            #No previous file found
+            Write-Host "Date range: $fromDate - $toDate"
+            Write-Host ""
+        }
+        else {
+            #Extract the latest date string
+            $temp = $lastLogName.Substring($lastLogName.Length-12)
+            $curr = $temp.Substring(0, $temp.Length-4)
+
+            #Fomat and add one day to the latest date
+            $latestDate = [System.DateTime]::ParseExact($curr, "yyyyMMdd", $null)
+            $newFromDate = $latestDate.AddDays(1).ToString("MM/dd/yyyy")
+
+            if ($newFromDate -le $toDate) {
+                #Update from date
+                $fromDate = $newFromDate
+                Write-Host "Date range: $fromDate - $toDate"
+                Write-Host ""
+            } 
+            else {
+                #transferLogs up to date
+                $latestDate = $latestDate.ToString("MM/dd/yyyy")
+                Write-Host "transferLog up to date: $latestDate"
+                Write-Host ""
+                continue;
+            }
+        }
+    }
+    catch {
+        #Error message
+        Write-Host "An error occurred: transferLog folder"
+        break;
+    }
+
+    #Open Secure Transport Url
+    Write-Host "WARNING: DO NOT send any mouse click while running the script!"
+    Write-Host ""
+
+    [system.Diagnostics.Process]::Start("chrome", $url)
+    start-sleep -Seconds 3
+
+    #Sign in Secure Transport
+    #User ID
+    foreach ($char in [char[]]$userID) {
+        $temp = "{" + $char + "}"
+        [System.Windows.Forms.SendKeys]::SendWait($temp)
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+    start-sleep -Seconds 1
+
+    #Password
+    foreach ($char in [char[]]$password) {
+        $temp = "{" + $char + "}"
+        [System.Windows.Forms.SendKeys]::SendWait($temp)
+        start-sleep -Milliseconds 10
+    }
+
+    #Sign in and wait for 20 seconds
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 20
+
+    #Show Advanced Search
+    for ($i = 1; $i -le 6; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 1
+
+    #Specific Date Time Range
+    for ($i = 1; $i -le 4; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 1
+
+    for ($i = 1; $i -le 8; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{DOWN}")
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 1
+
+    #from date
+    foreach ($char in [char[]]$fromDate) {
+        $temp = "{" + $char + "}"
+        [System.Windows.Forms.SendKeys]::SendWait($temp)
+        start-sleep -Milliseconds 10
+    }
+
+    for ($i = 1; $i -le 3; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    #to date
+    foreach ($char in [char[]]$toDate) {
+        $temp = "{" + $char + "}"
+        [System.Windows.Forms.SendKeys]::SendWait($temp)
+        start-sleep -Milliseconds 10
+    }
+
+    for ($i = 1; $i -le 3; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 11
+
+    #Local filename
+    for ($i = 1; $i -le 15; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    #Member Roster
+    foreach ($char in [char[]]$filename) {
+        $temp = "{" + $char + "}"
+        [System.Windows.Forms.SendKeys]::SendWait($temp)
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 11
+
+    #Export Log
+    for ($i = 1; $i -le 38; $i++) {
+        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
+        start-sleep -Milliseconds 10
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+    start-sleep -Seconds 20
+
+    #Rename downloaded file and move to the transferLog folder
+    $latestFile = gci $downloads\transferLog*.csv | sort LastWriteTime | select -last 1 -Verbose
+    $latestFilename = $latestFile.Name
+    Write-Host ""
+
+    if (($latestFilename.Length -eq 0) -Or ($latestFile.LastWriteTime -lt (Get-date).AddHours(-1))) {
+        #Downloads error
+        Write-Host "An error occurred: Downloads"
+        break;
+    }
+    else {
+        #Rename and move file
+        $dateRange = ([DateTime]$fromDate).ToString("yyyyMMdd") + "-" + ([DateTime]$toDate).ToString("yyyyMMdd")
+        $newFilename = "transferLog_" + $filename + $dateRange + ".csv"
+
+        Rename-Item -Path $downloads\$latestFilename -NewName $newFilename
+        Move-Item -Path $downloads\$newFilename -Force -Include "transferLog_*.csv" -Destination $transLogs
+
+        Write-Host "Added file: $newFilename"
+        Write-Host ""
+    }
+}
+Write-Host "Completed!"
+Write-Host ""
