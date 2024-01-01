@@ -15,7 +15,7 @@ Write-Host ""
 
 #Transfer Log folder
 $downloads = "C:\Users\" + $userID + "\Downloads"
-$transLogs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\transferLog"
+$transLogs = "C:\Users\" + $userID + "\Desktop\transferLog"
 
 #Local filename
 $filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "Member_MA_Premium_", "MAO004_", "MMR_", "MOR_", "RAPS_RETURN_")
