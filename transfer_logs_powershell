@@ -50,7 +50,7 @@ foreach ($filename in [string[]]$filenames) {
             $latestDate = [System.DateTime]::ParseExact($curr, "yyyyMMdd", $null)
             $newFromDate = $latestDate.AddDays(1).ToString("MM/dd/yyyy")
 
-            if ($newFromDate -le $toDate) {
+            if ([System.DateTime]::ParseExact($newFromDate, "MM/dd/yyyy", $null) -le [System.DateTime]::ParseExact($toDate, "MM/dd/yyyy", $null)) {
                 #Update from date
                 $fromDate = $newFromDate
                 Write-Host "Date range: $fromDate - $toDate"
