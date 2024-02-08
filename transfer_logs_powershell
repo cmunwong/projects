@@ -1,9 +1,12 @@
 # Export SFTP transfer log from Secure Transport
-# Stella Wong 11-07-2023
+# DO NOT send any mouse click while running the script
+# Stella Wong 01-31-2024
 
 Clear;
+
 Add-Type -AssemblyName microsoft.VisualBasic;
 Add-Type -AssemblyName System.Windows.Forms;
+Add-Type -AssemblyName System.Drawing;
 
 #Secure Transport url
 $url = "https://ft-int.regence.com/coreadmin/auth/login.jspx"
@@ -15,10 +18,29 @@ Write-Host ""
 
 #Transfer Log folder
 $downloads = "C:\Users\" + $userID + "\Downloads"
-$transLogs = "C:\Users\" + $userID + "\Desktop\transferLog"
+$transLogs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog"
+$toad_Logs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad"
+
+# Toad Automation Script
+$tas = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad\Refresh_TransferLog.tas"
+$toad = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Quest Software\Toad Data Point\Toad Data Point 4.3.lnk"
+
+# Toad RUN button location
+$posX = 2350
+$posY = 1340
+
+<#
+[System.Windows.Forms.Cursor]::Position.X
+[System.Windows.Forms.Cursor]::Position.Y
+
+$cursor = [system.windows.forms.cursor]::clip
+$posX = (2350 / 7040) * $cursor.Width
+$posY = (1340 / 1440) * $cursor.Height
+#>
 
 #Local filename
-$filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "Member_MA_Premium_", "MAO004_", "MMR_", "MOR_", "RAPS_RETURN_")
+$filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "ST_LUKES_")
+#$filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "Member_MA_Premium_", "MAO004_", "MMR_", "MOR_", "RAPS_RETURN_")
 
 #Specific Date Time Range
 #Initalize to 30 days back from yesterday
@@ -145,21 +167,12 @@ foreach ($filename in [string[]]$filenames) {
         start-sleep -Milliseconds 10
     }
 
-    for ($i = 1; $i -le 3; $i++) {
+    for ($i = 1; $i -le 12; $i++) {
         [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
         start-sleep -Milliseconds 10
     }
-
-    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
-    start-sleep -Seconds 11
 
     #Local filename
-    for ($i = 1; $i -le 15; $i++) {
-        [System.Windows.Forms.SendKeys]::SendWait("{TAB}")
-        start-sleep -Milliseconds 10
-    }
-
-    #Member Roster
     foreach ($char in [char[]]$filename) {
         $temp = "{" + $char + "}"
         [System.Windows.Forms.SendKeys]::SendWait($temp)
@@ -195,10 +208,26 @@ foreach ($filename in [string[]]$filenames) {
 
         Rename-Item -Path $downloads\$latestFilename -NewName $newFilename
         Move-Item -Path $downloads\$newFilename -Force -Include "transferLog_*.csv" -Destination $transLogs
+        Copy-Item -Path $transLogs\$newFilename -Force -Include "transferLog_*.csv" -Destination $toad_Logs
 
         Write-Host "Added file: $newFilename"
         Write-Host ""
     }
 }
+Write-Host "TransferLogs Ready!"
+Write-Host ""
+
+# Run Toad Automation Script
+Start-Process $tas 
+start-sleep -Seconds 20
+
+Start-Process $toad #-Wait -WindowStyle Maximized
+start-sleep -Seconds 5
+
+#Left click RUN button
+[system.windows.forms.cursor]::Position = New-Object System.Drawing.Point($posX, $posY)
+Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern void mouse_event(int flags, int dx, int dy, int cButtons, int info);' -Name U32 -Namespace W
+[W.U32]::mouse_event(6,0,0,0,0)
+
 Write-Host "Completed!"
 Write-Host ""
