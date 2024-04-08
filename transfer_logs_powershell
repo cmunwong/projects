@@ -40,7 +40,6 @@ $posY = (1340 / 1440) * $cursor.Height
 
 #Local filename
 $filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "ST_LUKES_")
-#$filenames = @("Member_Roster_", "Claim_Report_", "Claim_Scrub_Report_", "CTG_SPLMT_", "Member_MA_Premium_", "MAO004_", "MMR_", "MOR_", "RAPS_RETURN_")
 
 #Specific Date Time Range
 #Initalize to 30 days back from yesterday
