@@ -12,8 +12,8 @@ Add-Type -AssemblyName System.Drawing;
 $url = "https://***.regence.com"
 
 #Sign in Secure Transport
-$userID = Read-host -Prompt "Enter R# User ID (e.g. r000000)"
-$password = Read-host -Prompt "Enter Secure Transport password"
+$userID = Read-host -Prompt "Enter User ID"
+$password = Read-host -Prompt "Enter Password"
 Write-Host ""
 
 #Transfer Log folder
