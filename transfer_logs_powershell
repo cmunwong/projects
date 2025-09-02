@@ -9,7 +9,7 @@ Add-Type -AssemblyName System.Windows.Forms;
 Add-Type -AssemblyName System.Drawing;
 
 #Secure Transport url
-$url = "https://ft-int.regence.com/coreadmin/auth/login.jspx"
+$url = "https://***.regence.com"
 
 #Sign in Secure Transport
 $userID = Read-host -Prompt "Enter R# User ID (e.g. r000000)"
@@ -18,11 +18,11 @@ Write-Host ""
 
 #Transfer Log folder
 $downloads = "C:\Users\" + $userID + "\Downloads"
-$transLogs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog"
-$toad_Logs = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad"
+$transLogs = "T:\***\Monthly Provider Extracts\Monthly Report Tracker\transferLog"
+$toad_Logs = "T:\***\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad"
 
 # Toad Automation Script
-$tas = "T:\InterTeam\HCS-PPI\PPI Data Quality Team\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad\Refresh_TransferLog.tas"
+$tas = "T:\***\Monthly Provider Extracts\Monthly Report Tracker\transferLog_Toad\Refresh_TransferLog.tas"
 $toad = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Quest Software\Toad Data Point\Toad Data Point 4.3.lnk"
 
 # Toad RUN button location
